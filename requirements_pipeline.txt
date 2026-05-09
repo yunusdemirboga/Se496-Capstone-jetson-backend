@@ -1,0 +1,8 @@
+# Additional dependencies for pipeline.py (vision pipeline + event handling)
+# Install on Jetson with:
+#   pip3 install -r requirements_pipeline.txt
+
+openai>=1.0.0
+python-dotenv>=1.0.0
+requests>=2.31.0
+websockets>=11.0

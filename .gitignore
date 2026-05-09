@@ -1,0 +1,24 @@
+# Model files — download separately (see README)
+best.pt
+best.engine
+*.onnx
+
+# Audio model checkpoint — place manually (see README)
+audio_detection/outputs/checkpoints/cnn_baseline/best.pt
+
+# Environment file — never commit secrets
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Data directories — generated locally
+audio_detection/splits/
+audio_detection/outputs/logs/
+audio_detection/outputs/reports/
+audio_detection/output2/
+
+# OS
+.DS_Store

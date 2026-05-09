@@ -1,0 +1,18 @@
+[Unit]
+Description=U-SCAR Vision Detection Pipeline
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=anis
+WorkingDirectory=/home/anis/yolo_inference
+EnvironmentFile=/home/anis/yolo_inference/.env
+ExecStart=/usr/bin/python3 /home/anis/yolo_inference/pipeline.py --no-show
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
