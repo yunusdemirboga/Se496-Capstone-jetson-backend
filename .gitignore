@@ -1,0 +1,38 @@
+# ── Model weights and engines (large, hardware-specific) ─────────────────────
+best.pt
+best.engine
+*.onnx
+
+# ── Environment variables (secrets) ──────────────────────────────────────────
+.env
+
+# ── Claude Code local config ──────────────────────────────────────────────────
+.claude/
+
+# ── Python cache ──────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+
+# ── Audio model checkpoints (large binary files) ──────────────────────────────
+audio_detection/outputs/checkpoints/
+audio_detection/best_v1_mar29.pt
+audio_detection/best_v1_mar29.pt.zip
+audio_detection/best_v1_mar29.pt*/
+
+# ── Audio dataset (very large) ────────────────────────────────────────────────
+audio_detection/data/raw/
+audio_detection/data/processed/
+audio_detection/data/backgrounds/
+audio_detection/outputs/logs/
+audio_detection/outputs/reports/
+
+# ── Split CSVs (generated from dataset, not needed in repo) ──────────────────
+audio_detection/splits/*.csv
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+.venv/
+venv/

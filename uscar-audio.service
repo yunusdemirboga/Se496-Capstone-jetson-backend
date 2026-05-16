@@ -1,0 +1,20 @@
+[Unit]
+Description=U-SCAR Audio Detection Pipeline
+After=network-online.target sound.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=anis
+WorkingDirectory=/home/anis/yolo_inference/audio_detection
+EnvironmentFile=/home/anis/yolo_inference/.env
+ExecStart=/usr/bin/python3 /home/anis/yolo_inference/audio_detection/audio_client.py \
+    --backend ${BACKEND_WS_URL} \
+    --station-id ${BASE_STATION_ID}
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

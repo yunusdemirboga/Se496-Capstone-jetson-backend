@@ -1,0 +1,110 @@
+# UAV Audio Detection — Default Configuration
+# All paths are relative to the project root.
+# Override individual keys by passing --config-override key=value to scripts.
+
+data:
+  # --- Audio standardization ---
+  sample_rate: 16000              # Hz — already standardized in DADS dataset
+
+  # --- Windowing ---
+  # All clips are converted to fixed-length windows before any processing.
+  # This removes clip duration as an implicit discriminating feature.
+  window_size_sec: 1.0            # seconds — shortest meaningful drone acoustic signature
+  window_stride_sec: 0.5          # training: 50% overlap generates more diversity
+  window_stride_eval_sec: 1.0     # evaluation: non-overlapping windows (no double-counting)
+  pad_short_clips: true           # pad clips shorter than window_size with silence
+
+  # --- Feature extraction ---
+  # Log-mel spectrogram is the default. See docs/feature_representation.md.
+  feature_type: log_mel           # options: log_mel | cqt | stft
+  n_fft: 1024                     # FFT size (~64ms at 16kHz)
+  hop_length: 160                 # frame shift — 10ms at 16kHz
+  n_mels: 128                     # mel filter banks
+  f_min: 20.0                     # Hz — below audible drone fundamentals
+  f_max: 8000.0                   # Hz — Nyquist for 16kHz; covers all drone harmonics
+  top_db: 80.0                    # dynamic range floor in dB
+
+  # --- Paths ---
+  raw_dir: data/raw
+  processed_dir: data/processed
+  splits_dir: data/splits
+  backgrounds_dir: data/backgrounds
+
+  # --- Source-based splitting ---
+  # Splitting is done at the acoustic cluster level, not the sample level.
+  # See docs/data_strategy.md for rationale.
+  n_clusters_drone: 10            # number of source groups for drone clips
+  n_clusters_nondrone: 3          # number of source groups for non-drone clips (kept small so each split gets at least one cluster)
+  train_frac: 0.70
+  val_frac: 0.15
+  # test_frac is implicitly 1 - train_frac - val_frac = 0.15
+  split_seed: 42
+
+augmentation:
+  enabled: true
+
+  # Background mixing: mix drone clips with real environmental sounds.
+  # The single most impactful augmentation for real-world robustness.
+  # Only applied to drone (label=1) clips — mixing non-drone with background
+  # is semantically ambiguous.
+  background_mix_prob: 0.70       # probability of applying background mix
+  snr_range_db: [-5, 20]          # range of signal-to-noise ratios in dB
+
+  # Additive synthetic noise (both classes)
+  noise_prob: 0.40
+  noise_snr_range_db: [10, 30]
+
+  # Pitch shift — simulates different drone models / RPM
+  pitch_shift_prob: 0.30
+  pitch_shift_range_semitones: [-2.0, 2.0]
+
+  # Time stretch — subtle temporal variation
+  time_stretch_prob: 0.20
+  time_stretch_range: [0.90, 1.10]
+
+  # Room Impulse Response — simulates phone-speaker → room-air → mic acoustic channel
+  # RT60 is the time (seconds) for reverb to decay by 60 dB.
+  rir_prob: 0.40
+  rir_rt60_range_sec: [0.05, 0.6]
+
+  # Random gain — simulates different microphone sensitivities and recording levels
+  gain_prob: 0.50
+  gain_range_db: [-6.0, 6.0]
+
+  # SpecAugment — frequency and time masking on the spectrogram
+  # Applied after feature extraction; teaches robustness to partial occlusion.
+  spec_augment_prob: 0.50
+  freq_mask_param: 27       # max consecutive mel bins to mask (27 of 128 ≈ 21%)
+  time_mask_param: 25       # max consecutive time frames to mask (25 of 101 ≈ 25%)
+  num_freq_masks: 2
+  num_time_masks: 2
+
+  # Frequency warping — stretch/compress the frequency axis of the spectrogram.
+  # Simulates drones with different fundamental frequencies (different drone types).
+  # max_warp: 2.0 = up to ±1 octave shift (covers the full drone frequency range).
+  freq_warp_prob: 0.0
+  freq_warp_max: 2.0
+
+training:
+  batch_size: 64
+  num_workers: 4
+  learning_rate: 1.0e-3
+  weight_decay: 1.0e-4
+  epochs: 50
+  patience: 10                    # early stopping: epochs without val improvement
+  use_class_weights: true         # compute class weights from training set distribution
+  label_smoothing: 0.05           # prevents overconfident predictions
+
+evaluation:
+  # Tier 3: SNR sweep — evaluate robustness at each noise level
+  snr_levels_db: [-10, -5, 0, 5, 10, 15, 20]
+  # Operating point: report TPR at this fixed FPR level
+  # 5% FPR means at most 1 false alarm per 20 clean windows
+  fpr_operating_point: 0.05
+  # Classification threshold (probability of drone)
+  threshold: 0.5
+
+outputs:
+  checkpoints_dir: outputs/checkpoints
+  logs_dir: outputs/logs
+  reports_dir: outputs/reports

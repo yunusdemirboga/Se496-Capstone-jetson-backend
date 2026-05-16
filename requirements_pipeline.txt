@@ -1,0 +1,23 @@
+# Dependencies for pipeline.py (vision + audio + WebRTC + event handling)
+# Install on Jetson with:
+#   pip3 install -r requirements_pipeline.txt
+#
+# NOTE: torch and torchvision must be installed separately using the NVIDIA
+# JetPack wheels — DO NOT install via pip3 install torch.
+# See README.md → First-Time Setup for details.
+
+# Backend communication
+websockets>=11.0
+python-dotenv>=1.0.0
+requests>=2.31.0
+
+# WebRTC live video streaming
+aiortc>=1.6.0
+av>=10.0.0
+
+# Audio detection
+sounddevice>=0.4.0
+librosa>=0.10.0
+
+# Gemini AI verification (optional — only needed without --no-gpt)
+# No extra package needed: uses Gemini REST API directly via requests
